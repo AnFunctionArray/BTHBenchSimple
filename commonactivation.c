@@ -92,10 +92,12 @@ ULONG Release(struct standardinterfacepart* This)
 	InterlockedDecrement(&refCount);
 	if (refCount == 0)
 		This->lpVtblornull = -1;//free(This), 0;
+	else return refCount;
 
 	struct baseinterface* origThis = This->pBase;
+	unsigned int shouldbefreed = origThis->shouldbefreed;
 
-	if (!origThis->shouldbefreed)
+	if (!shouldbefreed)
 		return refCount;
 
 	This = origThis->interfaces;

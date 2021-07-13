@@ -89,7 +89,7 @@ HRESULT bthfromaddrhandlerInvoke(struct bthgenhandler* This,
 
 	static const IID* bthgetRfcommsrvcsimplements[] = { &IID_IUnknown, &IID___FIAsyncOperationCompletedHandler_1_Windows__CDevices__CBluetooth__CRfcomm__CRfcommDeviceServicesResult, 0 };
 
-	static struct bthgenhandler bthgetRfcommsrvcshandler = { 0, &bthfromaddrhandlervtbl, bthgetRfcommsrvcsimplements, 1, &bthgetRfcommsrvcshandler, };
+	static struct bthgenhandler bthgetRfcommsrvcshandler = { .lpVtbl = &bthfromaddrhandlervtbl, bthgetRfcommsrvcsimplements, 1, &bthgetRfcommsrvcshandler, };
 
 	/*struct bthgenhandler* bthgetRfcommsrvcshandlercopy = malloc(sizeof bthgetRfcommsrvcshandler);
 
@@ -129,15 +129,22 @@ int main()
 
 	static const IID* bthfromaddrhandlerimplements[] = { &IID_IUnknown, &IID___FIAsyncOperationCompletedHandler_1_Windows__CDevices__CBluetooth__CBluetoothDevice, 0 };
 
-	struct bthgenhandler bthfromaddrhandler = { 0, &bthfromaddrhandlervtbl, bthfromaddrhandlerimplements, 1, &bthfromaddrhandler, };
+	struct bthgenhandler bthfromaddrhandler = { 1, .lpVtbl = &bthfromaddrhandlervtbl, bthfromaddrhandlerimplements, 0, &bthfromaddrhandler, }, * pbthfromaddrhandler;
 
 	__FIAsyncOperation_1_Windows__CDevices__CBluetooth__CBluetoothDevice* bthdeviceop;
 
-	for (int i = 0; i < 1; ++i)
+	for (int i = 0; i < 2; ++i) {
 
-		__x_ABI_CWindows_CDevices_CBluetooth_CIBluetoothDeviceStatics_FromBluetoothAddressAsync(pBTHStatics, 0x889E337B5EACULL, &bthdeviceop),
+		__x_ABI_CWindows_CDevices_CBluetooth_CIBluetoothDeviceStatics_FromBluetoothAddressAsync(pBTHStatics, 0x889E337B5EACULL, &bthdeviceop);
 
-		__FIAsyncOperation_1_Windows__CDevices__CBluetooth__CBluetoothDevice_put_Completed(bthdeviceop, &bthfromaddrhandler.lpVtbl);
+		pbthfromaddrhandler = malloc(sizeof bthfromaddrhandler);
+
+		memcpy(pbthfromaddrhandler, &bthfromaddrhandler, sizeof bthfromaddrhandler);
+
+		pbthfromaddrhandler->pBase = pbthfromaddrhandler;
+
+		__FIAsyncOperation_1_Windows__CDevices__CBluetooth__CBluetoothDevice_put_Completed(bthdeviceop, &pbthfromaddrhandler->lpVtbl);
+	}
 	//CreateThread(0, 0, thread, i, 0, 0);
 	Sleep(INFINITE);
 }
